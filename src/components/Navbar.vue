@@ -39,6 +39,13 @@
     .nav {
         margin: 0px 150px;
         display: flex;
+        background-color: black;
+        position: fixed;
+        width: 100%;
+        margin-left: 0px;
+        padding-left: 150px;
+        left: 0;
+        top: 0;
     }
     .secondary {
         display: flex;
