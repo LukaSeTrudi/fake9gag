@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 
+Vue.prototype.$http = axios;
 Vue.use(Vuex);
-//const BaseURI = "http://localhost:80/9gag-api/";
+const BaseURI = "http://localhost:80/9gag-api/";
 
 
 export default new Vuex.Store({
     state: {
-        categories: [],
+        categories: {},
     },
 
     getters : {
@@ -22,9 +24,10 @@ export default new Vuex.Store({
 
     actions: {
         fetch_categories({commit}){
-            Vue.$http.get("http://localhost:80/9gag-api/getCategories.php", { crossdomain: true})
+            Vue.http.get(BaseURI.concat("getCategories.php"), { crossdomain: true})
             .then((result) => {
-                commit("FETCH_CATEGORIES", result.body);
+                console.log(result.data);
+                commit("FETCH_CATEGORIES", result.data);
             })
         },
     },

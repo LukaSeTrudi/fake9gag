@@ -15,9 +15,11 @@
                 </ul>
             </section>
             <section>
-                <header>POPULAR</header>
-                <ul class="navigation">
-                    {{ this.$store.state.categories}}
+                <header><h3>POPULAR</h3></header>
+                <ul class="nav">
+                    <li v-for="category in this.$store.state.categories" :key="category.id">
+                        <a :href="getCategoryUrl(category.title)" class="label"><i class="thumbnail" v-bind:style="getImageUrl(category.icon)"></i>{{ category.title}}</a>
+                    </li>
                 </ul>
             </section>
         </div>
@@ -28,7 +30,13 @@
     export default {
         name: 'Sidebar',
         methods: {
-
+            getCategoryUrl: function(link){
+                return "./" + link;
+            },
+            getImageUrl: function(link){
+                return "background-image: url(" + link + ");";
+            }
+            
         },
         created(){
             this.$store.dispatch("fetch_categories");
@@ -96,5 +104,36 @@
         color: #999;
         font-size: 12px;
         text-transform: uppercase;
+    }
+    .scrollbar section .nav {
+        list-style: none;
+    }
+    .scrollbar .nav .label {
+        color: #000;
+        font-size: 14px;
+        height: 36px;
+        line-height: 20px;
+        padding: 8px 0 8px 36px;
+        box-sizing: border-box;
+        display: block;
+        position: relative;
+        border-radius: 2px;
+        transition: background-color .15s,padding-right .15s;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 8px;
+    }
+    .sidebar .nav .thumbnail {
+        background-color: rgba(0,0,0,.05);
+        border-radius: 2px;
+        overflow: hidden;
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        background-size: 24px 24px;
+        left: 4px;
+        top: 50%;
+        margin-top: -12px;
     }
 </style>
