@@ -19,26 +19,49 @@
                     <a class="searchIcon" href="javascript:void(0)">sd</a>
                 </div>
                 <div id="jsid-visiton-function" class="visitor-function">                
-                    <a href="javascript:void(0)" class="btn-mute">Log In</a>
+                    <a href="javascript:void(0)" class="btn-mute" @click="showLoginModal = true">Log In</a>
                     <a href="javascript:void(0)" class="btn-primary">Sign Up</a>
                 </div>
             </div>
         </div>
+        <div id="backgroundLogin" v-if="showLoginModal" @click="toggleLoginModal($event)"><LoginModal></LoginModal></div>
     </header>
 </template>
 
 <script>
+    import LoginModal from '../views/LoginModal';
     export default {
         name: 'Navbar',
+        data() {
+            return {
+                showLoginModal: false,
+            }
+        },
         methods: {
+            toggleLoginModal: function(event) {
+                if(event.srcElement.id == 'backgroundLogin'){
+                    this.showLoginModal = !this.showLoginModal;
+                }
+            },
             toggleDark: function(){
 
             },
         },
+        components: {
+            LoginModal,
+        }
     }
 </script>
 
 <style>
+    #backgroundLogin {
+        position: absolute;
+        top: 0;
+        z-index: 9997;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,.3);
+    }
     #top-nav{
         will-change: transform;
         background-color: #000;
