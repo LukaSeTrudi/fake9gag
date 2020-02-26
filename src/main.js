@@ -6,6 +6,7 @@ import store from './store/index.js'
 import VueResource from 'vue-resource';
 import VueRouter from 'vue-router';
 
+
 Vue.config.productionTip = false
 Vue.use(Vuetify);
 Vue.use(Vuex);
