@@ -14,13 +14,19 @@ export default new Vuex.Store({
         user_picture: null,
         user_email: null,
         categories: {},
+        openedModal: 'none',
     },
 
     getters : {
-
+        isLoggedIn: state =>{
+            return state.user_id > 0;
+        }
     },
 
     mutations: {
+        CHANGE_MODAL(state, _modal){
+            state.openedModal = _modal;
+        },
         FETCH_CATEGORIES(state, categories){
             state.categories = categories;
         },
@@ -29,10 +35,14 @@ export default new Vuex.Store({
             state.user_name = user_data.name;
             state.user_email = user_data.email;
             state.user_picture = user_data.picture;
+            state.logged_in = true;
         }
     },
 
     actions: {
+        change_modal({commit}, _modal){
+            commit("CHANGE_MODAL", _modal);
+        },
         fetch_categories({commit}){
             Vue.http.get(BaseURI.concat("getCategories.php"))
             .then((result) => {
