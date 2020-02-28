@@ -2,7 +2,7 @@
     <div>
         <section id="modal-upload" class="badge-overlay-upload modal upload">
             <a class="btn-close badge-overlay-close" href="javascript:void(0);" @click="$store.dispatch('change_modal', 'none')">✖</a>
-            <div class="badge-upload-step badge-upload-file-step" v-if="clickedComponent == 'default'">
+            <div class="badge-upload-step badge-upload-file-step" v-if="clickedComponent == 'default' && file == null" >
                 <section id="upload-file" class="select-file">
                     <header>
                         <h3>Upload a Post</h3>
@@ -12,7 +12,7 @@
                         <a href="javascript:void(0);" id="jsid-upload-file-btn" class="source file dz-clickable">
                             <p>Upload photos</p>
                             <span class="btn" onclick="document.getElementById('clickChooseFiles').click();">Choose files...</span>
-                            <input type="file" multiple id="clickChooseFiles" style="width: 0px;">
+                            <input type="file" id="clickChooseFiles" accept="video/*,image/*" style="width: 0px;" @change="onFileChange($event);">
                         </a>
                         <div class="other-source">
                             <div class="wrapper">
@@ -24,7 +24,7 @@
                                 <a class="source vid-url" target="_blank" href="https://9gag.com/apps?ref=videoUpload"><p>Paste Video Url</p></a>
                             </div>
                             <div class="wrapper">
-                                <a href="https://memeful.com/generator?ref=9gag" target="_blank" onclick="GAG.GA.track('UploadAction', 'TapMakeMeme');" class="source meme">
+                                <a href="https://memeful.com/generator?ref=9gag" target="_blank" class="source meme">
                                     <p>Make meme</p>
                                 </a>
                             </div>
@@ -33,82 +33,62 @@
                 </section>
             </div>
 
-            <div class="badge-upload-step badge-upload-url-step" v-if="clickedComponent == 'uploadFromUrl'">
+            <div class="badge-upload-step badge-upload-url-step" v-if="clickedComponent == 'uploadFromUrl' && file == null">
                 <section id="upload-url">
                     <header>
                         <h3>Upload from URL</h3>
                         <p>Type or paste Image URL</p>
                     </header>
                     <div class="spacer">
-                        <div class="badge-upload-url-message message hide">
-                            <p></p>
+                        <div class="badge-upload-url-message message" v-bind:class="{ hide: (errorMsg == '' && ImageUrl != '')}">
+                            <p>{{this.errorMsg}}</p>
                         </div>
                         <div class="field textbox last">
-                            <input id="jsid-upload-url-input" type="url" placeholder="http://">
+                            <input id="jsid-upload-url-input" type="url" placeholder="http://" v-model="ImageUrl">
                         </div>
+                        <img :src="ImageUrl" alt="" @error="errorMsg = 'Invalid Photo'" @load="errorMsg = '';">
                     </div>
                 </section>
                 <div class="btn-container">
-                    <a class="badge-upload-url-next-btn btn right disabled" href="javascript:void(0);">Next</a>
-                    <a class="badge-upload-url-back-btn btn grey right" href="javascript:void(0);" @click="clickedComponent = 'default';">Back</a>
-            
+                    <a class="badge-upload-url-next-btn btn right disabled" href="javascript:void(0);" @click="assignPicture();">Next</a>
+                    <a class="badge-upload-url-back-btn btn grey right" href="javascript:void(0);"  @click="clickedComponent = 'default'">Back</a>
                 </div>
             </div>
-
-            <div class="badge-upload-step badge-upload-info-step badge-upload-tag-step" v-if="clickedComponent == 'finalUpload'">
-                <section id="upload-info">
-                    <header>
-                        <h3>Give your post a title</h3>
-                            <p>An accurate, descriptive title can help people discover your post.</p>
-                    </header>
-                    <div class="spacer">
-                        <div class="badge-upload-info-message message hide">
-                            <p></p>
-                        </div>
             
-                        <div class="field post-info">
-                            <div id="jsid-upload-file-preview" class="preview">
-            <div class="dz-preview dz-processing dz-image-preview dz-success">
-                    <div class="dz-image">
-                        <img data-dz-thumbnail="" alt="$store.state" :src="$store.state.user_picture"></div>
-                    </div></div>
-                            <input id="jsid-upload-file-id" name="upload-id" type="hidden" value="">
-                            <textarea id="jsid-upload-title" placeholder="Describe your post..." data-minlength="3" data-maxlength="280"></textarea>
-                            <p id="jsid-char-count" class="count">280</p>
-                        </div>
-                        <div class="field checkbox">
-                            <label>
-                                <p>This is sensitive</p>
-                                <input id="jsid-upload-is-nsfw" type="checkbox">
-                            </label>
-                        </div>
-                        <div id="jsid-source-checkbox-div" class="field checkbox last">
-                            <label>
-                                <p>Attribute original poster</p>
-                                <input id="jsid-source-checkbox" type="checkbox">
-                            </label>
-                        </div>
-                        <div id="jsid-source-input" class="field textbox last">
-                            <input id="jsid-source-input-textbox" type="url" placeholder="http://">
-                        </div>
-                    </div>
-                </section>
-                <div class="btn-container">
-                    <a class="badge-upload-info-next-btn btn right" href="javascript:void(0);">Next</a>
-                    <a class="badge-upload-info-back-btn btn grey right" href="javascript:void(0);">Back</a>
-                </div>
-            </div>
+            <FinalUpload v-bind:initialFile="file" v-if="file != null"></FinalUpload>
+            
         </section>
     </div>
 </template>
 
 <script>
+    import FinalUpload from './FinalUpload.vue';
+
     export default {
         name: 'UploadModal',
         data() {
             return {
-                clickedComponent: 'finalUpload',
+                errorMsg: '',
+                clickedComponent: 'default',
+                file: null,
+                ImageUrl: '',
             };
+        },
+        components: {
+            FinalUpload,
+        },
+        methods: {
+            assignPicture() {
+                if(this.errorMsg == ''){
+                    this.file = this.ImageUrl;
+                }
+            },
+            onFileChange: function(e){
+                this.file = e.target.files[0];
+            },
+            removeFile: function() {
+                this.file = null;
+            }
         }
     }
 </script>

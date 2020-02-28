@@ -4,13 +4,13 @@
             <section class="popular">
                 <ul class="navigation">
                     <li>
-                        <a href="./hot" class="label"><i class="icon hot"></i>Hot</a>
+                        <router-link to="./hot" class="label"><i class="icon hot"></i>Hot</router-link>
                     </li>
                     <li>
-                        <a href="./trending" class="label"><i class="icon trending"></i>Trending</a>
+                        <router-link to="./trending" class="label"><i class="icon trending"></i>Trending</router-link>
                     </li>
                     <li>
-                        <a href="./fresh" class="label"><i class="icon fresh"></i>Fresh</a>
+                        <router-link to="./fresh" class="label"><i class="icon fresh"></i>Fresh</router-link>
                     </li>
                 </ul>
             </section>
@@ -18,7 +18,7 @@
                 <header><h3>POPULAR</h3></header>
                 <ul class="nav">
                     <li v-for="category in this.$store.state.categories" :key="category.id">
-                        <a :href="getCategoryUrl(category.title)" class="label"><i class="thumbnail" v-bind:style="getImageUrl(category.icon)"></i>{{ category.title}}</a>
+                        <router-link :to="getCategoryUrl(category.url)" class="label"><i class="thumbnail" v-bind:style="getImageUrl(category.icon)"></i>{{ category.title}}</router-link>
                     </li>
                 </ul>
             </section>
@@ -31,7 +31,7 @@
         name: 'Sidebar',
         methods: {
             getCategoryUrl: function(link){
-                return "./" + link;
+                return "/" + link;
             },
             getImageUrl: function(link){
                 return "background-image: url(" + link + ");";
@@ -45,13 +45,12 @@
 </script>
 <style>
     .sidebar {
-        margin-left: 7vw;
-        margin-right: 77vw;
-        margin-top: 4vh;
-        background-color: white;
-    }
-    .scrollbar {
-        will-change: transform;
+        width: 192px;
+        height: calc(100% - 48px);
+        position: fixed;
+        z-index: 1;
+        overflow: hidden;
+        overscroll-behavior: contain;
     }
     .scrollbar section .navigation {
         list-style: none;

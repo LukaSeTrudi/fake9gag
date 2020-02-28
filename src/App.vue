@@ -2,9 +2,10 @@
   <div id="app">
     <Navbar></Navbar>
     <br><br>
-    <Sidebar></Sidebar>
-    <br>
-    <Main></Main>
+    <div id="container">
+      <Sidebar></Sidebar>
+      <Main></Main>
+    </div>
   </div>
 </template>
 
@@ -38,5 +39,15 @@ export default {
   width: 100%;
   left: 0;
   top: 0;
+}
+#container {
+    width: 1196px;
+    padding: 48px 16px 32px;
+    position: relative;
+}
+#container {
+    overflow: hidden;
+    margin: 0 auto;
+    clear: both;
 }
 </style>

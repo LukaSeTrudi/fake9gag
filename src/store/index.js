@@ -9,6 +9,7 @@ const BaseURI = "http://localhost:80/9gag-api/";
 
 export default new Vuex.Store({
     state: {
+        basicURL: BaseURI,
         user_id: null,
         user_name: null,
         user_picture: null,
@@ -60,7 +61,28 @@ export default new Vuex.Store({
                 user_email: user.email,
             })
             .then((result) => {
+                console.log(result.data);
                 commit("UPDATE_ID", result.data);
+            })
+            .catch((error) =>{
+                console.log(error, "catch");
+            });
+        },
+        upload_file({state}, data){
+            let formData = new FormData();
+            formData.append('file', data.file);
+            formData.append('user_id', state.user_id);
+            formData.append('description', data.description);
+            formData.append('sensitive', data.isSensitive);
+            formData.append('category', data.selectedCategory)
+            Vue.http.post(BaseURI.concat("uploadFile.php"), formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then((result) => {
+               console.log(result.data);
             })
             .catch((error) =>{
                 console.log(error, "catch");
