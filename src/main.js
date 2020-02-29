@@ -23,7 +23,7 @@ const routes = [
   { path: '/Hot'},
   { path: '/Trending'},
   { path: '/Fresh'},
-  { path: '/:category/:sort', 
+  { path: '/:category',
     component: CategoryPosts,
   },
 ];
