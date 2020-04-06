@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <div class="main-wrap">
-            <div class="profile">
+            <div class="profile" v-if="this.isCategory">
                 <section class="profile-header">
                     <div class="img-container">
                         <picture>
@@ -28,17 +28,14 @@
                 <div id="stream" class="list-stream" style="min-height: 0px;">
                     <div v-for="post in posts" :key="post.id">
                         <Post
-                        :c_title = "category_title"
-                        :c_url = "category_url"
-                        :c_icon = "category_icon"
+                        :c_title = "post.title"
+                        :c_url = "post.c_url"
+                        :c_icon = "post.icon"
                         :p_desc = "post.description"
                         :p_url = "post.url"
                         :p_id = "post.id"
                         :p_hash = "post.post_hash"
                         :p_date = "post.date"
-                        :num_likes = "post[7]"
-                        :num_comments = "post[6]"
-                        :init_liked = "post[8] ? post[8] : 0"
                         ></Post>
                     </div>
                 </div>
@@ -62,6 +59,7 @@
         data() {
             return {
                 selected_sort: 'hot',
+                isCategory: false,
                 category_title: '',
                 category_url: '',
                 category_icon: '',
@@ -77,6 +75,22 @@
         methods: {
             updateEverything(to) {
                 let formData = new FormData();
+                this.selected_sort= 'hot';
+                this.category_title= '';
+                this.category_url= '';
+                this.category_icon= '';
+                this.category_desc= '';
+                this.isCategory=false;
+                if(to.params.category == 'hot' || 
+                    to.params.category == 'trending' ||
+                    to.params.category == 'fresh' ||
+                    to.params.category == ''){
+                    this.getPosts();
+                    return;
+                }
+                if(!this.$store.state.category_urls.includes(to.params.category)){
+                    this.$router.push('/');
+                }
                 formData.append('url', to.params.category);
                 Vue.http.post(this.$store.state.basicURL.concat("getCategory.php"), formData,
                 {
@@ -88,17 +102,22 @@
                     this.category_url = result.data[0].url;
                     this.category_desc = result.data[0].description;
                     this.category_icon = result.data[0].icon;
+                    this.isCategory = true;
+                    this.getPosts();
                 }).catch((error) => {
                     console.log(error);
                     //window.location.href="/";
                 });
-                this.getPosts();
             },
             getPosts() {
                 let formData = new FormData();
+                if(this.isCategory){
+                    formData.append('sort', this.selected_sort);
+                } else {
+                    formData.append('sortBy', true);
+                }
+                formData.append('user_id', this.$session.get('user_id'));
                 formData.append('url', this.$route.params.category);
-                formData.append('sort', this.selected_sort);
-                formData.append('user_id', this.$store.state.user_id);
                 Vue.http.post(this.$store.state.basicURL.concat("getPostsFromCategory.php"), formData,
                 {
                     headers: {

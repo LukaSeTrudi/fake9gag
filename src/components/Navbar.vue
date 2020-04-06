@@ -48,7 +48,7 @@
                             <ul>
                                 <li><a id="jsid-my-profile" href="/u/lukapavcnik123" rel="nofollow">My Profile</a></li>
                                 <li><a href="https://9gag.com/settings" rel="nofollow">Settings</a></li>
-                                <li><a class="badge-logout-btn" href="https://9gag.com/logout" rel="nofollow">Logout</a></li>
+                                <li><a class="badge-logout-btn" href="javascript:void(0)" rel="nofollow" @click="destroySession()">Logout</a></li>
                             </ul>
                     </div>
                 </div>
@@ -100,11 +100,18 @@
             toggleDark: function(){
 
             },
+            destroySession(){
+                this.$session.destroy();
+                window.location.reload(0);
+            },
         },
         components: {
             LoginModal,
             UploadModal,
-        }
+        },
+        created(){
+            this.$store.dispatch("checkSession");
+        },
     }
 </script>
 

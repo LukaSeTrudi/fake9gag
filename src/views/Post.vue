@@ -98,10 +98,13 @@
                 post_id: this.p_id,
                 post_hash: this.p_hash,
                 post_date: this.p_date,
-                post_likes: this.num_likes,
-                post_comments: this.num_comments,
-                user_liked: this.init_liked,
+                post_likes: null,
+                post_comments: null,
+                user_liked: null,
             }
+        },
+        created() {
+            this.getLikesAndComments();
         },
         props: [
             'c_title',
@@ -112,9 +115,6 @@
             'p_id',
             'p_hash',
             'p_date',
-            'num_likes',
-            'num_comments',
-            'init_liked',
         ],
         methods: {
             calculateTime(init_date) {
@@ -161,8 +161,7 @@
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     }
-                }).then((result) => {
-                    this.user_liked = result.data;
+                }).then(() => {
                     this.getLikesAndComments();
                 }).catch((error) => {
                     console.log(error);
@@ -171,6 +170,9 @@
             getLikesAndComments(){
                 let formData = new FormData();
                 formData.append('post_id', this.post_id);
+                if(this.$session.get('user_id') > 0){
+                    formData.append('user_id', this.$session.get('user_id'));
+                }
                 Vue.http.post(this.$store.state.basicURL.concat("getLikes.php"), formData,
                 {
                     headers: {
@@ -179,6 +181,7 @@
                 }).then((result) => {
                     this.post_likes = result.data[0];
                     this.post_comments = result.data[1];
+                    this.user_liked = result.data[2];
                 }).catch((error) => {
                     console.log(error);
                 });

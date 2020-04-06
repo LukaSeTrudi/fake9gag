@@ -4,23 +4,29 @@ import axios from 'axios'
 
 Vue.prototype.$http = axios;
 Vue.use(Vuex);
-const BaseURI = "http://localhost:80/9gag-api/";
+const BaseURI = "http://ea60fe1f.ngrok.io/9gag-api/";
 
 
-export default new Vuex.Store({
+let store = new Vuex.Store({
     state: {
         basicURL: BaseURI,
         user_id: null,
-        user_name: null,
         user_picture: null,
+        username: null,
+        user_name: null,
         user_email: null,
         categories: {},
+        category_urls: [],
+        fileUploadError: '',
         openedModal: 'none',
     },
 
     getters : {
-        isLoggedIn: state =>{
-            return state.user_id > 0;
+        isLoggedIn:  function(){
+            return store.state.user_id > 0;
+        },
+        getUserId: function(){
+            return store.state.user_id;
         }
     },
 
@@ -30,13 +36,29 @@ export default new Vuex.Store({
         },
         FETCH_CATEGORIES(state, categories){
             state.categories = categories;
+            for(let index in categories){
+                state.category_urls.push(categories[index].url);
+            }
         },
-        UPDATE_ID(state, user_data){
-            state.user_id = user_data.id;
-            state.user_name = user_data.name;
-            state.user_email = user_data.email;
-            state.user_picture = user_data.picture;
-            state.logged_in = true;
+        UPDATE_ID(_state, user_data){
+            store._vm.$session.start();
+            store._vm.$session.set('user_id', user_data.id);
+            Vue.http.headers.common['Authorization'] = 'Bearer ' + user_data.id;
+            window.location.reload(0);
+        },
+        SET_DEFAULT(state){
+            state.user_id= null;
+            state.user_picture= "https://accounts-cdn.9gag.com/media/default-avatar/1_0_100_v0.jpg";
+            state.username= null;
+            state.user_name= null;
+            state.user_email= null;
+        },
+        SET_SESSION(state, data){
+            state.user_id= data.id;
+            state.user_picture= data.picture;
+            state.username= data.username;
+            state.user_name= data.name;
+            state.user_email= data.email;
         }
     },
 
@@ -61,7 +83,6 @@ export default new Vuex.Store({
                 user_email: user.email,
             })
             .then((result) => {
-                console.log(result.data);
                 commit("UPDATE_ID", result.data);
             })
             .catch((error) =>{
@@ -74,7 +95,7 @@ export default new Vuex.Store({
             formData.append('user_id', state.user_id);
             formData.append('description', data.description);
             formData.append('sensitive', data.isSensitive);
-            formData.append('category', data.selectedCategory)
+            formData.append('category', data.selectedCategory);
             Vue.http.post(BaseURI.concat("uploadFile.php"), formData,
             {
                 headers: {
@@ -82,11 +103,35 @@ export default new Vuex.Store({
                 }
             })
             .then((result) => {
-               console.log(result.data);
+               state.fileUploadError = result.data;
             })
             .catch((error) =>{
                 console.log(error, "catch");
             });
         },
+        getDataFromSession({commit}, data){
+            let formData = new FormData();
+            formData.append('id', data);
+            Vue.http.post(BaseURI.concat("getDataFromId.php"), formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then((result) => {
+                commit("SET_SESSION", result.data);
+            })
+            .catch((error) =>{
+                console.log(error, "catch");
+            });
+        },
+        checkSession({commit}){
+            if(store._vm.$session.exists() && store.state.user_id == null){
+                store.dispatch("getDataFromSession",(store._vm.$session.get("user_id")));
+            } else if(!store._vm.$session.exists()) {
+                commit("SET_DEFAULT");
+            }
+        }
     },
 });
+export default store

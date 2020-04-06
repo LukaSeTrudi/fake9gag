@@ -1,7 +1,7 @@
 <template>
     <div>
         <section class="modal">
-          <a href="javascript:void(0);" class="btn-close">✖</a>
+          <a href="javascript:void(0);" class="btn-close" @click="$store.dispatch('change_modal', 'none')">✖</a>
           <section id="signup"> 
             <div>
             <h2>Login</h2>
@@ -68,12 +68,13 @@
                 if (this.isConnected) this.getUserData()
             },
             onLogin() {
-                this.isConnected = true
-                this.getUserData()
-                this.$store.dispatch("change_modal", 'none')
+                this.isConnected = true;
+                this.getUserData();
+                this.$store.dispatch("change_modal", 'none');
             },
             onLogout() {
                 this.isConnected = false;
+                this.$session.destroy();
             },
         }
     }

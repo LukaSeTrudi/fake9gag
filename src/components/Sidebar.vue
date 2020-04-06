@@ -4,13 +4,13 @@
             <section class="popular">
                 <ul class="navigation">
                     <li>
-                        <router-link to="./hot" class="label"><i class="icon hot"></i>Hot</router-link>
+                        <router-link to="/hot" class="label"><i class="icon hot"></i>Hot</router-link>
                     </li>
                     <li>
-                        <router-link to="./trending" class="label"><i class="icon trending"></i>Trending</router-link>
+                        <router-link to="/trending" class="label"><i class="icon trending"></i>Trending</router-link>
                     </li>
                     <li>
-                        <router-link to="./fresh" class="label"><i class="icon fresh"></i>Fresh</router-link>
+                        <router-link to="/fresh" class="label"><i class="icon fresh"></i>Fresh</router-link>
                     </li>
                 </ul>
             </section>

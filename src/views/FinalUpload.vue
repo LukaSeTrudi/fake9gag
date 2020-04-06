@@ -7,7 +7,7 @@
                     <p>An accurate, descriptive title can help people discover your post.</p>
                 </header>
                 <div class="spacer">
-                    <div class="badge-upload-info-message message" v-bind:class="{ hide: errorMsg == ''}">
+                    <div class="badge-upload-info-message message" v-if="errorMsg.length > 0">
                         <p>{{ errorMsg }}</p>
                     </div>
         
@@ -107,6 +107,13 @@
                         isSensitive: this.isSensitive,
                         selectedCategory: this.selectedCategory,
                     });
+                    this.errorMsg = this.$store.state.fileUploadError;
+                    if(this.errorMsg > 0){
+                        this.step = 'upload';
+                    } else {
+                        alert('File was uploaded');
+                        this.$store.state.openedModal = 'none';
+                    }
                 }
             },
             getUrl(file){
