@@ -1,7 +1,7 @@
 <template>
     <header id="top-nav">
         <div class="nav-wrap">
-            <a class="logo" href="localhost:8080" style="font-weight: bold">9GAG</a>
+            <a class="logo" href="/hot" style="font-weight: bold">9GAG</a>
             <nav class="nav-menu">
                 <ul class="secondary">
                     <li><a href="https://about.9gag.com/app" >9GAG App📱</a></li>
@@ -20,7 +20,7 @@
                 </div>
                 <div id="jsid-visiton-function" class="visitor-function" v-if="!this.$store.getters.isLoggedIn">                
                     <a href="javascript:void(0)" class="btn-mute" @click="$store.dispatch('change_modal', 'loginModal');">Log In</a>
-                    <a href="javascript:void(0)" class="btn-primary">Sign Up</a>
+                    <a href="javascript:void(0)" class="btn-primary" @click="$store.dispatch('change_modal', 'registerModal');">Sign Up</a>
                 </div>
                 <div id="jsid-user-function" class="user-function" v-if="this.$store.getters.isLoggedIn">
                     <div id="jsid-header-notification-menu" class="notification badge-evt" @click = "showNotificationMenu = !showNotificationMenu">
@@ -28,7 +28,7 @@
                     </div>
                     <div id="jsid-header-user-menu" class="avatar" @click ="showUserMenu = !showUserMenu">
                         <a class="avatar-container" href="javascript:void(0);" rel="nofollow">
-                            <img id="jsid-avatar" :src="this.$store.state.user_picture" alt="avatar">
+                            <img id="jsid-avatar" :src="getPicUrl(this.$store.state.user_picture)" alt="avatar">
                         </a>
                     </div>
                     <div class="upload" @click="$store.dispatch('change_modal', 'uploadModal');">
@@ -46,8 +46,8 @@
                             <span class="arrow"></span>
                         </span>
                             <ul>
-                                <li><a id="jsid-my-profile" href="/u/lukapavcnik123" rel="nofollow">My Profile</a></li>
-                                <li><a href="https://9gag.com/settings" rel="nofollow">Settings</a></li>
+                                <li><a id="jsid-my-profile" :href="'/u/' + this.$store.state.username" rel="nofollow">My Profile</a></li>
+                                <li><a href="/settings" rel="nofollow">Settings</a></li>
                                 <li><a class="badge-logout-btn" href="javascript:void(0)" rel="nofollow" @click="destroySession()">Logout</a></li>
                             </ul>
                     </div>
@@ -57,6 +57,7 @@
         <div id="backgroundLogin" v-if="this.$store.state.openedModal != 'none'" @click="toggleModal($event);">
             <LoginModal v-if="this.$store.state.openedModal == 'loginModal'"></LoginModal>
             <UploadModal v-if="this.$store.state.openedModal == 'uploadModal'"></UploadModal>
+            <RegisterModal v-if="this.$store.state.openedModal == 'registerModal'"></RegisterModal>
         </div>
         <div id="backgroundLogin" v-if="showUploadModal" @click="toggleUploadModal($event)"><UploadModal></UploadModal></div>
 
@@ -66,6 +67,7 @@
 <script>
     import LoginModal from '../views/LoginModal';
     import UploadModal from '../views/UploadModal';
+    import RegisterModal from '../views/RegisterModal';
 
     export default {
         name: 'Navbar',
@@ -92,13 +94,19 @@
             }
         },
         methods: {
+            
+            getPicUrl(url){
+                if(url[0] == 'u'){
+                    return this.$store.state.basicURL + url;
+                } else return url;
+            },
             toggleModal: function(event){
                 if(event.srcElement.id == 'backgroundLogin'){
                     this.$store.dispatch("change_modal", 'none');
                 }
             },
             toggleDark: function(){
-
+                this.$store.dispatch("setDark", !this.$store.state.dark_mode);
             },
             destroySession(){
                 this.$session.destroy();
@@ -108,6 +116,7 @@
         components: {
             LoginModal,
             UploadModal,
+            RegisterModal,
         },
         created(){
             this.$store.dispatch("checkSession");
@@ -116,6 +125,12 @@
 </script>
 
 <style>
+    #app.dark-theme .popup-menu a {
+        color: #fff;
+    }
+    #app.dark-theme .noti-item.unread:hover, #app.dark-theme .popup-menu ul {
+        background-color: #333;
+    }
     input[type=email], input[type=password], input[type=text], input[type=url] {
         line-height: 20px;
         height: 20px;

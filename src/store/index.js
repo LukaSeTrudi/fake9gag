@@ -4,7 +4,7 @@ import axios from 'axios'
 
 Vue.prototype.$http = axios;
 Vue.use(Vuex);
-const BaseURI = "http://ea60fe1f.ngrok.io/9gag-api/";
+const BaseURI = "http://localhost:80/9gag-api/9GagAPI/";
 
 
 let store = new Vuex.Store({
@@ -15,9 +15,15 @@ let store = new Vuex.Store({
         username: null,
         user_name: null,
         user_email: null,
+        user_gender: null,
+        user_bday: null,
+        user_desc: null,
         categories: {},
         category_urls: [],
+        dark_mode: false,
+        loginError: '',
         fileUploadError: '',
+        registerError: '',
         openedModal: 'none',
     },
 
@@ -41,7 +47,7 @@ let store = new Vuex.Store({
             }
         },
         UPDATE_ID(_state, user_data){
-            store._vm.$session.start();
+            if(!store._vm.$session.exists()) store._vm.$session.start();
             store._vm.$session.set('user_id', user_data.id);
             Vue.http.headers.common['Authorization'] = 'Bearer ' + user_data.id;
             window.location.reload(0);
@@ -59,6 +65,24 @@ let store = new Vuex.Store({
             state.username= data.username;
             state.user_name= data.name;
             state.user_email= data.email;
+            state.user_gender =data.gender;
+            state.user_bday = data.bday;
+            state.user_desc = data.description;
+        },
+        SET_DARK(state, data){
+            state.dark_mode = data;
+            if(!store._vm.$session.exists()){
+                store._vm.$session.start();
+            }
+            store._vm.$session.set('dark_mode', data);
+            if(data){
+                document.body.style.backgroundColor = "black";
+            } else {
+                document.body.style.backgroundColor = "white";
+            }
+        },
+        RELOAD(){
+            window.location.reload();
         }
     },
 
@@ -83,6 +107,29 @@ let store = new Vuex.Store({
                 user_email: user.email,
             })
             .then((result) => {
+                commit("UPDATE_ID", result.data);
+                console.log(result);
+            })
+            .catch((error) =>{
+                console.log(error, "catch");
+            });
+        },
+        login({commit, state}, data){
+            let formData = new FormData();
+            formData.append('email', data._email);
+            formData.append('pass', data._pass);
+            Vue.http.post(BaseURI.concat("login.php"), formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then((result) => {
+                console.log(result.body);
+                if(result.data == "Invalid Password" ||result.data == "Invalid Email"){
+                    state.loginError = result.data;
+                    return;
+                }
                 commit("UPDATE_ID", result.data);
             })
             .catch((error) =>{
@@ -125,13 +172,64 @@ let store = new Vuex.Store({
                 console.log(error, "catch");
             });
         },
+        registerUser({commit}, data){
+            let formData = new FormData();
+            formData.append('full', data._fullname);
+            formData.append('email', data._email);
+            formData.append('pass', data._pass);
+            Vue.http.post(BaseURI.concat("registerUser.php"), formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then((result) => {
+                
+                console.log(result.body);
+                if(result.data == ""){
+                    return;
+                }
+                commit("UPDATE_ID", result.data);
+            })
+            .catch((error) =>{
+                console.log(error, "catch");
+            });
+        },
+        setDark({commit},data){
+            commit("SET_DARK", data);
+        },
         checkSession({commit}){
-            if(store._vm.$session.exists() && store.state.user_id == null){
-                store.dispatch("getDataFromSession",(store._vm.$session.get("user_id")));
+            if(store._vm.$session.exists()){
+                if(store.state.user_id == null){
+                    store.dispatch("getDataFromSession",(store._vm.$session.get("user_id")));
+                }
+                if(store._vm.$session.has("dark_mode")){
+                    this.state.dark_mode=store._vm.$session.get("dark_mode");
+                }
             } else if(!store._vm.$session.exists()) {
                 commit("SET_DEFAULT");
             }
-        }
+            if(this.state.dark_mode){
+                document.body.style.backgroundColor = "black";
+            } else {
+                document.body.style.backgroundColor = "white";
+            }
+            
+        },
+        updateProfile({commit}, data){
+            Vue.http.post(BaseURI.concat("updateProfile.php"), data,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then(() => {
+                commit("RELOAD");
+            })
+            .catch((error) =>{
+                console.log(error, "catch");
+            });
+        },
     },
 });
 export default store

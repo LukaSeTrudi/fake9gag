@@ -13,17 +13,18 @@
                 :p_id = "post.id"
                 :p_hash = "post.post_hash"
                 :p_date = "post.date"
+                :u_id ="post.user_id"
                 ></Post>
             </div>
         </div>
     </section>
-    <section class="post-comment">
+    <section class="post-comment" id="comment">
         <div class="CS3">
             <div class="tab-bar clearfix">
                 <div class="tab-bar-right">
                     <ul class="tab">
-                        <li class="active"><a href="javascript:void(0);">Hot</a></li>
-                        <li class=""><a href="javascript:void(0);">Fresh</a></li>
+                        <li :class="{active : comment_sort == 'hot'}"><a href="javascript:void(0);" @click="changeSort('hot')">Hot</a></li>
+                        <li :class="{ active: comment_sort == 'fresh'}"><a href="javascript:void(0);" @click="changeSort('fresh')">Fresh</a></li>
                     </ul>
                 </div>
             </div>
@@ -52,11 +53,13 @@
                 </div>
                 <div v-for="comment_ in comments" :key="comment_.id">
                     <Comment
+                    :_ind="0"
                     :_id="comment_.id"
                     :_comment="comment_.reply"
                     :_picture = "comment_.picture"
                     :_user = "comment_.username"
                     :_date ="comment_.date"
+                    :_postid = "comment_.post_id"
                     >
                     </Comment>    
                 </div>
@@ -84,6 +87,7 @@ export default {
             posts: [],
             comments: [],
             comment: '',
+            comment_sort: 'hot',
         }
     },
     created(){
@@ -105,11 +109,20 @@ export default {
                 return this.$store.state.user_picture;
             }
         },
+        changeSort(srt){
+            this.comment_sort = srt;
+            this.getComments();
+        },
         addComment(top_id){
+            if(this.$store.state.user_id == null){
+                this.$store.dispatch("change_modal", 'loginModal');
+                return;
+            }
             let formData = new FormData();
             formData.append('user_id', this.$store.state.user_id);
             formData.append('post_id', this.posts[0].id);
             formData.append('comment', this.comment);
+            this.comment = '';
             if(top_id != null){
                 formData.append('top_reply', top_id);
             }
@@ -120,7 +133,7 @@ export default {
                 }
             }).then((result) => {
                 console.log(result);
-                this.comment = "";
+                this.getPost();
             }).catch((error) => {
                 console.log(error);
             });
@@ -143,6 +156,7 @@ export default {
         getComments() {
             let formData = new FormData();
             formData.append('post_id', this.posts[0].id);
+            formData.append('sort', this.comment_sort);
             Vue.http.post(this.$store.state.basicURL.concat("getComments.php"), formData,
             {
                 headers: {
@@ -150,7 +164,6 @@ export default {
                 }
             }).then((result) => {
                 this.comments = result.data;
-                console.log(this.comments);
             }).catch((error) => {
                 console.log(error);
             });
@@ -160,6 +173,11 @@ export default {
 </script>
 
 <style>
+    .CS3 .tab-bar ul.tab li.active a {
+    color: #000;
+    border-bottom: 2px solid #09f;
+    padding-bottom: 10px;
+}
 section.post-comment {
     padding-bottom: 30px;
     margin-top: 20px;
@@ -266,7 +284,7 @@ section.post-comment {
     padding: 4px 15px;
 }
 .CS3 a.cmnt-btn {
-    color: #fff;
+    color: #fff !important;
     background-color: #09f;
     padding: 9px 20px;
     border: 1px solid #09f;
@@ -357,7 +375,7 @@ section.post-comment {
 .CS3 .comment-entry .payload .action {
     font-size: 12px;
     line-height: 20px;
-    height: 20px;
+    height: 30px;
     color: #999;
 }
 .CS3 .comment-entry .action .admin, .CS3 .comment-entry .action .delete, .CS3 .comment-entry .action .message, .CS3 .comment-entry .action .reply, .CS3 .comment-entry .action .vote-buttons {

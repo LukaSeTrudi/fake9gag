@@ -16,12 +16,14 @@
     "regenerator-runtime": "^0.13.3",
     "vue": "^2.6.11",
     "vue-facebook-login-component": "^1.4.1",
+    "vue-google-login": "^2.0.3",
     "vue-moment": "^4.1.0",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.1.6",
     "vue-session": "^1.0.0",
     "vuetify": "^2.2.11",
-    "vuex": "^3.1.2"
+    "vuex": "^3.1.2",
+    "vuex-persistedstate": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.2.0",

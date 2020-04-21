@@ -36,9 +36,12 @@
                         :p_id = "post.id"
                         :p_hash = "post.post_hash"
                         :p_date = "post.date"
+                        :u_id ="post.user_id"
                         ></Post>
                     </div>
                 </div>
+                
+                <p v-if="posts.length == 0">No posts here</p>
             </section>
         </div>
     </div>

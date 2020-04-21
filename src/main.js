@@ -12,6 +12,7 @@ import VueSession from 'vue-session';
 import CategoryPosts from './components/CategoryPosts';
 import User from './components/User';
 import Gag from './components/Gag';
+import Settings from './components/Settings';
 
 Vue.config.productionTip = false
 Vue.use(Vuetify);
@@ -24,6 +25,7 @@ Vue.use(VueSession, {persist: true});
 const routes = [
   { path: '/u/:username', component: User},
   { path: '/gag/:posthash', component: Gag},
+  { path: '/settings', component: Settings},
   { path: '*', redirect: '/hot'},
   { path: '/:category',
     component: CategoryPosts,

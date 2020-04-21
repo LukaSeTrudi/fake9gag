@@ -94,6 +94,23 @@
 </script>
 
 <style>
+    #app.dark-theme {
+        background-color: #000;
+        color: #fff;
+    }
+    #app.dark-theme section.modal {
+        background-color: #333;
+    }
+    #app.dark-theme section.modal a.btn-close {
+    filter: invert(100%);
+}
+#app.dark-theme section.modal.upload .source {
+    border-color: hsla(0,0%,100%,.2);
+    color: #fff;
+}
+#app.dark-theme section.modal.upload .source.file:after, #app.dark-theme section.modal.upload .source.pic-url:after, #app.dark-theme section.modal.upload .source.vid-url:after {
+    filter: invert(100%);
+}
     section.modal {
         width: 540px;
         position: absolute;

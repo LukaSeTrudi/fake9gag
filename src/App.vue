@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ 'dark-theme' : this.$store.state.dark_mode }">
     <Navbar></Navbar>
     <br><br>
     <div id="container">
@@ -13,7 +13,6 @@
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Main from './components/Main';
-
 
 export default {
   name: 'App',
@@ -30,6 +29,12 @@ export default {
 </script>
   
 <style>
+#app img {
+  background: white !important;
+}
+#app.dark-theme{
+  background-color: black;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -42,6 +47,7 @@ export default {
 }
 #container {
     width: 1196px;
+    height: 100%;
     padding: 48px 16px 32px;
     position: relative;
 }

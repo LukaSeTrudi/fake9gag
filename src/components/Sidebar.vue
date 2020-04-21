@@ -44,6 +44,9 @@
     }
 </script>
 <style>
+    #app.dark-theme .scrollbar section .navigation .label {
+        color: white;
+    }
     .sidebar {
         width: 192px;
         height: calc(100% - 48px);
@@ -96,6 +99,9 @@
         top: 50%;
         margin-top: -12px;
     }
+    #app.dark-theme .scrollbar .icon {
+        filter: invert(100%);
+    }
     .scrollbar header{
         line-height: 16px;
         height: 16px;
@@ -106,6 +112,9 @@
     }
     .scrollbar section .nav {
         list-style: none;
+    }
+    #app.dark-theme .scrollbar .nav .label {
+        color: #fff;
     }
     .scrollbar .nav .label {
         color: #000;

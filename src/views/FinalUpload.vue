@@ -111,8 +111,8 @@
                     if(this.errorMsg > 0){
                         this.step = 'upload';
                     } else {
-                        alert('File was uploaded');
                         this.$store.state.openedModal = 'none';
+                        window.location.href="/u/"+this.$store.state.username;
                     }
                 }
             },

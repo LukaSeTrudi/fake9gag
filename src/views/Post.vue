@@ -58,18 +58,23 @@
             </ul>
             <ul class="btn-vote left">
                 <li>
-                    <a data-evt="PostList,TapPost,Funny-Hot,,Comment" data-entry-id="aBgbnjQ" 
-                    data-position="1" target="_blank" href="/gag/aBgbnjQ#comment" class=" comment badge-evt">
+                    <router-link
+                     target="_blank" :to="'/gag/'+post_hash+'#comment'" class="comment badge-evt">
                         Comment
-                    </a>
+                    </router-link>
                 </li>
             </ul>
-            <div>
+            <div v-if="this.owner_id == this.$session.get('user_id')">
                 <ul class="btn-vote left">
-                    <a href="javascript:void(0);" class="more">
+                    <a href="javascript:void(0);" class="more" @click="menu_opened =!menu_opened">
                         More
                     </a>
                 </ul>
+                <div class="popup-menu listview-share" v-if="menu_opened">
+                    <ul>
+                        <li><a href="javascript:void(0);" @click="deleteThis">Delete Post</a></li>
+                    </ul>
+                </div>
             </div> 
             <div class="clearfix">
             </div>
@@ -100,7 +105,9 @@
                 post_date: this.p_date,
                 post_likes: null,
                 post_comments: null,
+                owner_id: this.u_id,
                 user_liked: null,
+                menu_opened: false,
             }
         },
         created() {
@@ -115,8 +122,23 @@
             'p_id',
             'p_hash',
             'p_date',
+            'u_id',
         ],
         methods: {
+            deleteThis(){
+                let formData = new FormData();
+                formData.append('post_id', this.post_id);
+                Vue.http.post(this.$store.state.basicURL.concat("deletePost.php"), formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }).then(() => {
+                    window.location.href="/u/"+this.$store.state.username;
+                }).catch((error) => {
+                    console.log(error);
+                });
+            },
             calculateTime(init_date) {
                 var now = moment();
                 var start = init_date;
@@ -191,7 +213,70 @@
 </script>
 
 <style>
-
+#app.dark-theme .noti-item.unread:hover, #app.dark-theme .popup-menu ul {
+background-color: #333;
+}
+.popup-menu.listview-share {
+left: 222px;
+top: 24px;
+}
+.popup-menu ul {
+    list-style-type: none;
+    overflow: hidden;
+    padding: 4px 0;
+    background-color: #fff;
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    box-sizing: border-box;
+}
+.popup-menu a {
+    display: block;
+    color: #000;
+    line-height: 34px;
+    padding: 0 16px;
+    font-size: 14px;
+}
+#app.dark-theme .popup-menu a {
+    color: #fff;
+}
+.popup-menu {
+    position: absolute;
+    left: 50%;
+    margin-left: -60px;
+    z-index: 13;
+    min-width: 160px;
+}
+#app.dark-theme .CS3 .comment-entry .payload .content, #app.dark-theme .CS3 .collapsed-comment {
+    color: #fff;
+}
+#app.dark-theme textarea {
+background-color: transparent;
+color: #fff;
+border-color: hsla(0,0%,100%,.2);
+}
+#app.dark-theme .CS3 .comment-box .payload input[type=url], body.theme-dark .CS3 .comment-box .payload textarea {
+    color: #fff;
+    background-color: transparent;
+    border-color: hsla(0,0%,100%,.2);
+}
+#app.dark-theme .CS3 .comment-box .action {
+border-color: hsla(0,0%,100%,.2)!important;
+}
+#app.dark-theme .CS3 .tab-bar ul.tab li.active a {
+    color: #fff!important;
+}
+#app.dark-theme .CS3 {
+    background-color: black !important;
+}
+#app.dark-theme .CS3 .tab-bar {
+    border-color: hsla(0,0%,100%,.2)!important;
+}
+#app.dark-theme .CS3 .comment-box .payload .textarea-container textarea.focus {
+    background-color: transparent;
+    border-color: hsla(0,0%,100%,.2);
+}
+#app.dark-theme section#list-view-2 h1 {
+    color: #fff;
+}
 section#list-view-2 .list-stream:first-child article:first-child {
     border: 0;
     padding: 0;

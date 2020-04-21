@@ -17,9 +17,6 @@
             <section class="profile-about">My Funny Collection</section>
             <div class="tab-bar">
                 <ul class="menu">
-                    <li><a href="javascript:void(0);" @click="changeSort('home')" v-bind:class="{selected : (sort=='home')}">
-                        Home
-                    </a></li>
                     <li><a href="javascript:void(0);" @click="changeSort('posts')" v-bind:class="{selected : (sort=='posts')}">
                         Posts
                     </a></li>
@@ -52,6 +49,8 @@
                     ></Post>
                 </div>
             </div>
+            <p v-if="posts.length == 0 && sort == 'posts'">No posts here</p>
+            <p v-if="posts.length == 0 && sort =='comments'">No comments here</p>
         </section>
     </div>
 </div>
@@ -71,7 +70,7 @@ export default {
     },
     data() {
         return {
-            sort: 'home',
+            sort: 'posts',
             posts: {},
             profile: {},
         };
@@ -79,7 +78,23 @@ export default {
     methods: {
         changeSort(_sort){
             this.sort = _sort;
+            this.getPosts();
         },
+        getPosts() {
+            let formData = new FormData();
+            formData.append('username', this.profile.id);
+            formData.append('sort', this.sort);
+            Vue.http.post(this.$store.state.basicURL.concat("getSortedPosts.php"), formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }).then((result) => {
+                    this.posts = result.data;
+                }).catch((error) => {
+                    console.log(error);
+                });
+        }
     },
     created() {
         let formData = new FormData();
@@ -91,15 +106,18 @@ export default {
                     }
                 }).then((result) => {
                     this.profile = (result.data[0]);
-                    console.log(this.profile);
+                    this.getPosts();
                 }).catch((error) => {
                     console.log(error);
-                    //window.location.href="/";
                 });
     },
 }
 </script>
 <style>
+#app.dark-theme .profile .tab-bar ul.menu a.selected {
+    color: #fff;
+    border-color: #fff;
+}
 .profile-header {
     display: flex;
     align-items: center;

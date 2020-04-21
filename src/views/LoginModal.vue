@@ -14,19 +14,23 @@
                     @logout="onLogout"
                     @sdk-loaded="sdkLoaded">
                   </facebook-login>
+                  <div class="container">
+                  <GoogleLogin class="btn-connect-option button" :params="params" :onSuccess="onSuccess" :onFailure="onFailure">Google login</GoogleLogin>
+                </div>
               </div>
-              <form id="login-email" action="/login" method="POST">
+              <form id="login-email">
                 <input type="hidden" name="next" value="/">
                  <p class="lead">Log in with your Email</p> 
                 <div class="field">
                   <label for="login-email-name">Email</label> 
-                  <input id="login-email-name" type="text" name="username" value="" autofocus="autofocus">
+                  <input v-model="email" id="login-email-name" type="text" name="username" value="" autofocus="autofocus">
                 </div> 
                 <div class="field">
                     <label for="login-email-password">Password</label> 
-                  <input id="login-email-password" type="password" name="password" value="">
+                  <input v-model="pass" id="login-email-password" type="password" name="password" value="">
+                  <p class="error-message red">{{this.$store.state.loginError}}</p>
                 </div> 
-                  <div class="btn-container"><input type="submit" value="Log in" class="btn left"> 
+                  <div class="btn-container"><a @click="login" class="btn left" type="submit">Log In</a>
                 </div>
               </form>
           </section>
@@ -36,19 +40,46 @@
 
 <script>
     import facebookLogin from 'facebook-login-vuejs';
-
+    import GoogleLogin from 'vue-google-login';
     export default {
         name: 'LoginModal',
         components: {
             facebookLogin,
+            GoogleLogin,
         },
         data() {
             return {
+                params: {
+                    client_id: "96750288399-hvt6b3ls1f691e45f30ms3p4nrf8rh85.apps.googleusercontent.com",
+                },
+                renderParams: {
+                    width: 250,
+                    height: 150,
+                    longtitle: true
+                },
               isConnected: false,
-              FB: undefined
+              FB: undefined,
+              email: '',
+              pass: '',
             }
         },
         methods: {
+            onSuccess(googleUser) {
+            //console.log(googleUser.getBasicProfile());
+            var usr = googleUser.getBasicProfile();
+            this.$store.dispatch("login_external", {  
+                        name: usr.Ad,
+                        email: usr.zu,
+                        personalID: usr.ZU,
+                        picture: usr.gL,
+                        external: 'GOOGLE',         
+            });
+            this.$store.dispatch("change_modal", 'none');
+
+            },
+            onFailure(googleUser){
+                console.log(googleUser);
+            },
             getUserData() {
                 this.FB.api('/me', 'GET', { fields: 'id,name,email,picture' },
                 user => {
@@ -76,11 +107,38 @@
                 this.isConnected = false;
                 this.$session.destroy();
             },
+            login(){
+                this.$store.dispatch("login", {
+                    _email: this.email,
+                    _pass: this.pass,
+                });
+            }
         }
     }
 </script>
 
 <style scoped>
+    .field p.error-message {
+    font-size: 12px;
+    color: red;
+    margin-top: 10px;
+}
+.container {
+    width: 50%;
+    float: left;
+}
+.btn-connect-option {
+    display: block;
+    font-size: 20px;
+    height: 100%;
+    line-height: 30px;
+    font-weight: 500;
+    background-color: #2d72d9;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+    float: left;
+}
 section.modal {
     width: 540px;
     position: absolute;
